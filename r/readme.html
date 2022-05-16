@@ -421,6 +421,10 @@ Objects in R</a>
 <ul>
 <li><a href="#extracting-or-indexing-or-subscripting-elements"><span class="toc-section-number">2.4.1</span> Extracting (or indexing, or
 subscripting) elements</a></li>
+<li><a href="#replacing-elements"><span class="toc-section-number">2.4.2</span> Replacing elements</a></li>
+<li><a href="#ordering-elements"><span class="toc-section-number">2.4.3</span> Ordering elements</a></li>
+<li><a href="#vectorisation"><span class="toc-section-number">2.4.4</span> Vectorisation</a></li>
+<li><a href="#missing-data"><span class="toc-section-number">2.4.5</span> Missing data</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -1486,9 +1490,143 @@ indexing, or subscripting) elements</h3>
 bracket <code>[ ]</code> notation. We can extract elements by their
 position or by satisfying some logical operation.</p>
 <ol style="list-style-type: decimal">
-<li><p>Positional index.</p></li>
-<li><p>Logical index.</p></li>
+<li><strong>Positional</strong> index.</li>
 </ol>
+<p><strong>Note that the positional index starts at 1 rather than 0 like
+some other other programming languages (i.e. Python).</strong></p>
+<p>To extract elements based on their position we simply write the
+position inside the [ ]. For example, to extract the 3rd value of
+my_vec</p>
+<pre class="r"><code>my_vec &lt;-  c(2, 3, 1, 6, 4, 3, 3, 7)
+my_vec[3]     # extract the 3rd value
+## [1] 1</code></pre>
+<p>We can also extract more than one value by using the <code>c()</code>
+function inside the square brackets. Here we extract the 1st, 5th, 6th
+and 8th element from the <code>my_vec</code> object:</p>
+<pre class="r"><code>my_vec[c(1, 5, 6, 8)]
+## [1] 2 4 3 7</code></pre>
+<p>Or we can extract a range of values using the <code>:</code>
+notation. To extract the values from the 3rd to the 8th elements:</p>
+<pre class="r"><code>my_vec[3:8]
+## [1] 1 6 4 3 3 7</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li><strong>Logical</strong> index.</li>
+</ol>
+<p>Another useful way to extract data from a vector is to use a logical
+expression as an index. For example, to extract all elements with a
+value greater than 4 in the vector <code>my_vec</code>:</p>
+<pre class="r"><code>my_vec[my_vec &gt; 4]
+## [1] 6 7</code></pre>
+<p>Here, the logical expression is <code>my_vec &gt; 4</code> and R will
+only extract those elements that satisfy this logical condition.</p>
+<p>So how does this actually work? If we look at the output of just the
+logical expression without the square brackets you can see that R
+returns a vector containing either TRUE or FALSE which correspond to
+whether the logical condition is satisfied for each element. In this
+case only the 4th and 8th elements return a TRUE as their value is
+greater than 4.</p>
+<pre class="r"><code>my_vec &gt; 4
+## [1] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE</code></pre>
+<p>In addition to <code>&lt;</code> and <code>&gt;</code> operators you
+can increase the complexity.</p>
+<pre class="r"><code>my_vec[my_vec &gt;= 4]        # values greater or equal to 4
+## [1] 6 4 7
+my_vec[my_vec &lt; 4]         # values less than 4
+## [1] 2 3 1 3 3
+my_vec[my_vec &lt;= 4]        # values less than or equal to 4
+## [1] 2 3 1 4 3 3
+my_vec[my_vec == 4]        # values equal to 4
+## [1] 4
+my_vec[my_vec != 4]        # values not equal to 4
+## [1] 2 3 1 6 3 3 7</code></pre>
+<p>We can also combine multiple logical expressions using Boolean
+expressions. In R the <code>&amp;</code> symbol means AND and the
+<code>|</code> symbol means OR. For example, to extract values in
+<code>my_vec</code> which are less than 6 AND greater than 2.</p>
+<pre class="r"><code>val_filtered &lt;- my_vec[(my_vec &lt; 6) &amp; (my_vec &gt; 2)]
+val_filtered
+## [1] 3 4 3 3</code></pre>
+</div>
+<div id="replacing-elements" class="section level3" number="2.4.2">
+<h3><span class="header-section-number">2.4.2</span> Replacing
+elements</h3>
+<p>We can change the values of some elements in a vector using our
+<code>[ ]</code> notation in combination with the assignment operator
+<code>&lt;-</code>. For example, to replace the 4th value of our
+<code>my_vec</code> object from 6 to 500:</p>
+<pre class="r"><code>my_vec[4] &lt;- 500
+my_vec
+## [1]   2   3   1 500   4   3   3   7</code></pre>
+<p>We can also replace more than one value or even replace values based
+on a logical expression!</p>
+</div>
+<div id="ordering-elements" class="section level3" number="2.4.3">
+<h3><span class="header-section-number">2.4.3</span> Ordering
+elements</h3>
+<p>We can order the elements in a vector by using in-built
+<code>sort()</code> function:</p>
+<pre class="r"><code>sort(my_vec)
+## [1]    7  100  100  500 1000 1000 1000 1000</code></pre>
+<p>To reverse the sort, from highest to lowest, we can either include
+the <code>decreasing = TRUE</code> argument when using the
+<code>sort()</code> function</p>
+<pre class="r"><code>sort(my_vec, decreasing = TRUE)
+## [1] 1000 1000 1000 1000  500  100  100    7</code></pre>
+<p>What if we need to sort values based on some other vector? For
+example, sort a series of rock types based on the MgO? We can use
+another in-built function <code>order()</code> which returns indexes
+instead of values.</p>
+<pre class="r"><code>rock.types = c(&#39;basalt&#39;, &#39;andesite&#39;, &#39;dacite&#39;, &#39;anorthosite&#39;, &#39;dunite&#39;)
+mgo.measured = c(8, 6, 2, 10, 12)
+
+mgo.measured.asc = order(mgo.measured)
+rock.types[mgo.measured.asc]
+
+## [1] &quot;dacite&quot;      &quot;andesite&quot;    &quot;basalt&quot;      &quot;anorthosite&quot; &quot;dunite&quot;</code></pre>
+</div>
+<div id="vectorisation" class="section level3" number="2.4.4">
+<h3><span class="header-section-number">2.4.4</span> Vectorisation</h3>
+<p>One of the great things about R functions is that most of them are
+<em>vectorised</em>. This means that the function will operate on all
+elements of a vector without needing to apply the function on each
+element separately.</p>
+<pre class="r"><code># create a vector
+my_vec2 &lt;- c(3, 5, 7, 1, 9, 20)
+
+# multiply each element by 5
+my_vec2 * 5
+## [1]  15  25  35   5  45 100</code></pre>
+<p>Or we can add the elements of two or more vectors:</p>
+<pre class="r"><code># create a second vector
+my_vec3 &lt;- c(17, 15, 13, 19, 11, 0)
+
+# add both vectors
+my_vec2 + my_vec3
+## [1] 20 20 20 20 20 20
+
+# multiply both vectors
+my_vec2 * my_vec3
+## [1] 51 75 91 19 99  0</code></pre>
+<p><strong>Be careful when using vectorisation with vectors of different
+lengths!</strong></p>
+</div>
+<div id="missing-data" class="section level3" number="2.4.5">
+<h3><span class="header-section-number">2.4.5</span> Missing data</h3>
+<p>In R, missing data is usually represented by an <code>NA</code>
+symbol meaning ‘Not Available’. Data may be missing for a whole bunch of
+reasons, maybe your machine broke down, maybe you broke down, maybe the
+weather was too bad to collect data on a particular day etc etc. Missing
+data can be a pain in the proverbial both from an R perspective and also
+a statistical perspective.</p>
+<pre class="r"><code>my_vec &lt;- c(17, 15, 13, 19, 11, 0, NA)
+mean(my_vec)
+# [1] NA</code></pre>
+<p>However, if we change this argument to n<code>a.rm = TRUE</code> when
+we use the <code>mean()</code> function this will allow us to ignore the
+<code>NA</code> values when calculating the mean:</p>
+<pre class="r"><code>my_vec &lt;- c(17, 15, 13, 19, 11, 0, NA)
+mean(my_vec, na.rm = TRUE)
+# [1] 12.5</code></pre>
 </div>
 </div>
 </div>
