@@ -1,0 +1,333 @@
+---
+title: "Introduction to data analysis in R. Day 1."
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: united
+date: '2022-05-26'
+---
+
+```{r setup, include=FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Gettings started with R
+
+
+
+## What is R?
+
+R is a powerful language and environment for *statistical computing and graphics*. It is a public domain (a so called “GNU”) project which is similar to the commercial S language and environment which was developed at Bell Laboratories (formerly AT&T, now Lucent Technologies) by John Chambers and colleagues. R can be considered as a different implementation of S, and is much used in as an educational language and research tool.
+
+The main advantages of R are the fact that R is freeware and that there is a lot of help available online. It is quite similar to other programming packages such as MatLab (not freeware), but more user-friendly than programming languages such as C++ or Fortran. You can use R as it is, but for educational purposes we prefer to use R in combination with the RStudio interface (also freeware), which has an organized layout and several extra options.
+
+For more details on R see their official website <https://www.r-project.org/>.
+
+## Installation
+
+We'll need to install two things: *R base* and *IDE* (Integrated Development Environment).
+
+1. Install **R base**.
+
+    a. For Windows users select the [Download R for Windows](https://cran.r-project.org/bin/windows/){target="_blank"} link and then click on         the "base" link and finally the download link "Download R 4.1.3 for Windows". This will begin the download of the             ".exe" installation file. When the download has completed double click on the R executable file and follow the                on-screen instructions.
+    
+    b. For Mac users select the [Download R for (Mac) OS X](https://cran.r-project.org/bin/macosx/){target="_blank"} link. The binary can be          downloaded by selecting the "R-4.2.0.pkg". Once downloaded, double click on the file icon and follow the                      on-screen instructions to guide you through the necessary steps. 
+       See the [R for Mac OS X FAQ](https://cran.r-project.org/bin/macosx/){target="_blank"} for further information on installation.
+       
+   *Testing R installation*
+   
+   Whichever operating system you’re using, once you have installed R you need to check its working properly. The easiest way    to do this is to start R by double clicking on the R icon (Windows or Mac) or by typing R into the Console (Linux). You       should see the R Console and you should be able to type R commands into the Console after the command prompt >. Try typing    the following R code and then press enter (don’t worry of you don’t understand this - we’re just checking if R works)
+
+    ```{r}
+    plot(1:10)
+    ```
+    
+    A plot of the numbers 1 to 10 on both the x and y axes should appear. If you see this, you’re good to go. 
+
+2. Install **RStudio**.
+
+    Whilst its eminently possible to just use the base installation of R (many people do), we will be using a popular **I**ntegrated **D**evelopment **E**nvironment (IDE) called RStudio. RStudio can be thought of as an add-on to R which provides a more user-friendly interface, incorporating the R Console, a script editor and other useful functionality (like R markdown and Git Hub integration). You can find more information about [RStudio here](https://www.rstudio.com/){target="_blank"}.
+  
+    RStudio is freely available for Windows, Mac and Linux operating systems and can be downloaded from the [RStudio site](https://www.rstudio.com/products/rstudio/download/){target="_blank"}. You should select the ‘RStudio Desktop’ version. Note: you must install R before you install RStudio (see previous section for details).
+    
+    *Testing RStudio*
+    
+    Once installed, you can check everything is working by starting up RStudio (you don’t need to start R as well, just RStudio).
+
+    The large window (aka pane) on the left is the Console window. The window on the top right is the Environment / History / Connections pane and the bottom right window is the Files / Plots / Packages / Help / Viewer window. You can customise the location of each pane by clicking on the "Tools" menu then selecting Global Options –> Pane Layout. You can resize the panes by clicking and dragging the middle of the window borders in the direction you want. There are a plethora of other ways to customise RStudio.
+
+
+## RStudio
+
+### Console
+
+The Console is the workhorse of R. This is where R evaluates all the code you write. You can type R code directly into the Console at the command line prompt. For example, if you type `2 + 2` into the Console you should obtain the answer `4`. Don’t worry about the [1] at the start of the line for now.
+
+However, once you start writing more R code this becomes rather cumbersome. Instead of typing R code directly into the Console a better approach is to create an **R script**. An **R script** is just a plain text file with a .R file extension which contains your lines of R code. These lines of code are then sourced into the R Console line by line. To create a new R script click on the ‘File’ menu then select *New File* –> *R Script*.
+
+To source your code from your script editor to the Console simply place your cursor on the line of code and then click on the ‘Run’ button in the top right of the script editor pane.
+
+
+### Environment / History / Connections
+
+The Environment / History / Connections window shows you lots of useful information. You can access each component by clicking on the appropriate tab in the pane.
+
+- The ‘Environment’ tab displays all the objects you have created in the current (global) environment. These objects can be things like data you have imported or functions you have written. Objects can be displayed as a List or in Grid format by selecting your choice from the drop down button on the top right of the window. If you’re in the Grid format you can remove objects from the environment by placing a tick in the empty box next to the object name and then click on the broom icon. There’s also an ‘Import Dataset’ button which will import data saved in a variety of file formats. However, we would suggest that you don’t use this approach to import your data as it’s not reproducible and therefore not robust.
+
+- The ‘History’ tab contains a list of all the commands you have entered into the R Console. You can search back through your history for the line of code you have forgotten, send selected code back to the Console or Source window. We usually never use this as we always refer back to our R script.
+
+- The ‘Connections’ tab allows you to connect to various data sources such as external databases.
+
+
+### Files/Plots/Packages/Help/Viewer
+
+- The ‘Files’ tab lists all external files and directories in the current working directory on your computer. It works like file explorer (Windows) or Finder (Mac). You can open, copy, rename, move and delete files listed in the window.
+
+- The ‘Plots’ tab is where all the plots you create in R are displayed (unless you tell R otherwise). You can ‘zoom’ into the plots to make them larger using the magnifying glass button, and scroll back through previously created plots using the arrow buttons. There is also the option of exporting plots to an external file using the ‘Export’ drop down menu. Plots can be exported in various file formats such as jpeg, png, pdf, tiff or copied to the clipboard.
+
+- The ‘Packages’ tab lists all of the packages that you have installed on your computer. You can also install new packages and update existing packages by clicking on the ‘Install’ and ‘Update’ buttons respectively.
+
+- The ‘Help’ tab displays the R help documentation for any function.
+
+- The ‘Viewer’ tab displays local web content such as web graphics generated by some packages.
+
+
+## R packages
+
+The base installation of R comes with many useful **packages** as standard. These packages will contain many of the functions you will use on a daily basis. However, as you start using R for more diverse projects (and as your own use of R evolves) you will find that there comes a time when you will need to extend R’s in-built capabilities. Happily, many thousands of R users have developed useful code and shared this code as installable packages. You can think of a **package** as a *collection of functions, data and help files* collated into a well defined standard structure which you can download and install in R. These packages can be downloaded from a variety of sources but the most popular are CRAN, Bioconductor and GitHub. Currently, CRAN hosts over 15 000 packages and is the official repository for user contributed R packages. 
+
+### Installing and updating packages
+
+To install a package from CRAN you can use the `install.packages()` function. For example if you want to install the `remotes` package enter the following code into the Console window of RStudio (note: you will need a working internet connection to do this)
+
+```{r, eval=FALSE}
+install.packages('remotes', dependencies = TRUE)
+```
+
+It’s good practice to occasionally update your previously installed packages to get access to new functionality and bug fixes. To update CRAN packages you can use the `update.packages()` function (you will need a working internet connection for this)
+
+```{r, eval=FALSE}
+update.packages(ask = FALSE)
+```
+
+You may be asked to select a CRAN mirror, just select ‘0-cloud’ or a mirror near to your location. The `dependencies = TRUE` argument ensures that additional packages that are required will also be installed.
+
+### Using packages
+
+Once you have installed a package onto your computer it is not immediately available for you to use. To use a package you first need to load the package by using the library() function. For example, to load the remotes package you previously installed
+
+```{r, eval=FALSE}
+library(remotes)
+```
+
+## R projects
+
+A great way of keeping things organised is to use RStudio Projects. An RStudio Project keeps all of your R scripts, R markdown documents, R functions and data together in one place. The nice thing about RStudio Projects is that each project has its own directory, workspace, history and source documents so different analyses that you are working on are kept completely separate from each other. This means that you can have multiple instances of RStudio open at the same time (if that’s your thing) or you can switch very easily between projects without fear of them interfering with each other.
+
+As part of our project, we have created a `r.Rproj` file in `./data-science-workshop-2022/r/` directory.
+
+## Working directories
+
+The working directory is the default location where R will look for files you want to load and where it will put any files you save. One of the great things about using RStudio Projects is that when you open a project it will automatically set your working directory to the appropriate location. You can check the file path of your working directory by looking at bar at the top of the Console pane.
+
+Additionally, you can use the `getwd()` function which returns the file path of the current working directory.
+
+If you are not using RStudio, you have to set your working directory everytime you start the R console:
+
+```{r, eval=FALSE}
+setwd('/Users/Documents/Liubomyr/Teaching/first_project')
+```
+
+Remember, `setwd()` uses an *absolute* path which is specific to the computer you are working on.
+
+
+By properly setting up your working directory, you can access files on your machine and load them into the environment!
+
+```{r}
+library(knitr)
+
+initial_data <- read.table('../data/raw_data/mafic_dykes.csv', header=TRUE, sep=',')
+kable(initial_data[5:10,], caption='A sample table of XRF and ICP analyses of mafic dykes.')
+```
+
+
+## Directory structure
+
+Typically, I prefer putting all data in a separate folder `data`, scripts into a root of the project or a folder `scripts`,
+outputs (visualizations, tables, calculations, etc.) in a folder `output`... you got the idea. Accordingly:
+
+- **Root** - This is a project directory containing your .Rproj file. In our case it's `./data-science-workshop-2022/r/`
+
+- **data** - We store all our data in this directory. The subdirectory called `raw_data` contains raw data files and only raw data files. These files should be treated as read only and should not be changed in any way. If you need to process/clean/modify your data do this in R (not MS Excel) as you can document (and justify) any changes made. Any processed data should be saved to a separate file and stored in the `processed_data` subdirectory. Information about data collection methods, details of data download and any other useful metadata could be saved in a text document (see README text files below) in the metadata subdirectory.
+
+- **R** - This is an optional directory where we save all of the custom R functions we’ve written for the current analysis. These can then be sourced into R using the `source()` function.
+
+- **scripts** - All of the main R scripts we have written for the current project are saved here.
+
+- **output** - Outputs from our R scripts such as plots, HTML files and data summaries are saved in this directory. This helps us and our collaborators distinguish what files are outputs and which are source files.
+
+
+## File naming conventions
+
+- **Avoid using spaces** in file names by replacing them with underscores or even hyphens. Why does this matter? One reason is that some command line software (especially many bioinformatic tools) won’t recognise a file name with a space and you’ll have to go through all sorts of shenanigans using escape characters to make sure spaces are handled correctly. Another good reason not to use spaces in file names is that it makes searching for file names (or parts of file names) using regular expressions in R (or any other language) much more difficult.
+
+- For the reasons given above, also **avoid using special characters** (i.e. @£$%^&*(:/) in your file names.
+
+- If you are **versioning your files with sequential numbers** (i.e. file1, file2, file3 …) and you have more than 9 files you should use 01, 02, 03 .. 10 as this will ensure the files are printed in the correct order (see what happens if you don’t). If you have more than 99 files then use 001, 002, 003… etc.
+
+- If your file names include dates, **use the ISO 8601 format YYYY-MM-DD (or YYYYMMDD)** to ensure your files are listed in proper chronological order.
+
+**Never use the word final in any file name - it never is**!
+
+## Project documentation
+
+It is a good practice to document your functions or whole projects. The comments or documentation should allow the developers unfamiliar with your code to quickly understand what the function does and easily navigate across the project files.
+
+
+Here’s an example of including meta-information at the start of an R script
+
+```{r, eval=FALSE}
+# Title: Exploratory analysis of geochemical data of mafic dykes from 22nd Antarctic expedition
+
+# Purpose : This script performs basic data analysis
+#           of geochemical data of mafic dykes.
+#           The samples include 11 basalts and 4 lamprophyres.
+#           The data is XRF and ICP-MS analyses.
+
+
+# Author: Liubomyr Gavryliv
+# Contact details: liubomyr.gavryliv@uniba.sk
+
+# Date script created: Mon Dec 2 16:06:44 2021 -----------
+# Date script last modified: Thu Dec 12 16:07:12 2021 ----
+
+
+library(PopSnouter)
+library(ggplot2)
+
+print('put your lovely R code here')
+
+# good practice to include session information
+
+xfun::session_info()
+```
+
+
+## R style guide
+
+How you write your code is more or less up to you although your goal should be to make it as easy to read as possible (for you and others). Whilst there are no rules (and no code police), we encourage you to get into the habit of writing readable R code by adopting a particular style. We suggest that you follow Google’s [R style guide](https://google.github.io/styleguide/Rguide.html) whenever possible.
+
+
+# R basics
+
+Before we continue, here are a few things to bear in mind as you work through this Chapter:
+
+- R is case sensitive i.e. `A` is not the same as `a` and `anova` is not the same as `Anova`.
+
+- Anything that follows a `#` symbol is interpreted as a comment and ignored by R. Comments should be used liberally throughout your code for both your own information and also to help your collaborators. Writing comments is a bit of an art and something that you will become more adept at as your experience grows.
+
+- In R, commands are generally separated by a new line. You can also use a semicolon `;` to separate your commands but this is rarely used.
+
+- If a continuation prompt `+` appears in the console after you execute your code this means that you haven’t completed your code correctly. This often happens if you forget to close a bracket and is especially common when nested brackets are used `((((some command)))`. Just finish the command on the new line and fix the typo or hit escape on your keyboard (see point below) and fix.
+
+
+## Getting started
+
+The `[1]` in front of the result tells you that the observation number at the beginning of the line is the first observation. This is not much help in this example, but can be quite useful when printing results with multiple lines (we’ll see an example below). The other obvious arithmetic operators are `-`, `*`, `/` for subtraction, multiplication and division respectively. R follows the usual mathematical convention of order of operations. 
+
+There are a huge range of mathematical functions in R, some of the most useful include: `log()`, `log10()`, `exp()`, `sqrt()`.
+
+
+## Objects in R
+
+At the heart of almost everything you will do (or ever likely to do) in R is the concept that everything in R is an object. These objects can be almost anything, from a single number or character string (like a word) to highly complex structures like the output of a plot, a summary of your statistical analysis or a set of R commands that perform a specific task. Understanding how you create objects and assign values to objects is key to understanding R.
+
+
+To create an object we simply give the object a name. We can then assign a value to this object using the *assignment operator* <- (sometimes called the *gets operator*). The assignment operator is a composite symbol comprised of a ‘less than’ symbol `<` and a hyphen `-` .
+
+```{r, eval=FALSE}
+some_object <- 50
+```
+
+You can also use `=` instead of `<-` to assign values but this is considered bad practice and we would discourage you from using this notation.
+
+You can view the newly created object in the Environment panel or by typing the object name directly in the console.
+
+Additionally, you can assign any data type to an object: `string`, `numbers`... and make simple operations with them!
+
+```{r}
+object_1 <- 50
+object_2 <- 30
+
+object_1 + object_2
+```
+
+### Naming objects
+
+Naming your objects is one of the most difficult things you will do in R. Ideally your object names should be kept both short and informative which is not always easy. 
+
+There are two major types of naming objects: **CamelCase** and **snake_case**.
+
+If you need to create objects with multiple words in their name then use either an underscore or a dot between words or capitalise the different words. We prefer the underscore format (called *snake case*).
+
+```{r, eval=FALSE}
+output_summary <- "my geochemical analysis"
+output.summary <- "my geochemical analysis"
+outputSummary <- "my geochemical analysis"
+```
+
+There are also a few limitations when it come to giving objects names. An object name cannot start with a number or a dot followed by a number (i.e. `2my_variable` or `.2my_variable`). You should also avoid using non-alphanumeric characters in your object names (i.e. `&`, `^`, `/`, `!` etc). In addition, make sure you don’t name your objects with reserved words (i.e. `TRUE`, `NA`) and it’s never a good idea to give your object the same name as a built-in function.
+
+## Using functions
+
+A function as an **object** which contains a series of instructions to perform a specific task. R has a lot of built-in primitive functions, which could be treated as **base** functions.
+
+The function name is always followed by a pair of round brackets even if there’s nothing contained between the brackets. Secondly, the argument(s) of a function are placed inside the round brackets and are separated by commas.
+
+
+1. `c()` - a generic function which combines its arguments. The function is short for concatenate and we use it to join together a series of values and store them in a data structure called a vector. A **vector** is a basic data structure in R. It contains element of the same type. The data types can be *logical*, *integer*, *double*, *character*, *complex* or *raw*.
+
+```{r, eval=FALSE}
+some_vec <- c(2, 3, 1, 6, 4, 3, 3, 7)
+```
+
+2. Mathematical functions: `mean()`, `median()`, `var()`, `sd()`.
+
+```{r, eval=FALSE}
+mean(some_vec)    # returns the mean of some_vec
+## [1] 3.625
+var(some_vec)     # returns the variance of some_vec
+## [1] 3.982143
+sd(some_vec)      # returns the standard deviation of some_vec
+## [1] 1.995531
+length(some_vec)  # returns the number of elements in some_vec
+## [1] 8
+
+```
+
+3. Other useful functions: `length()`, `seq()`, `rep()`.
+
+```{r, eval=FALSE}
+my_seq <- 1:10     # create regular sequence
+my_seq
+##  [1]  1  2  3  4  5  6  7  8  9 10
+my_seq2 <- 10:1    # in descending order
+my_seq2
+##  [1] 10  9  8  7  6  5  4  3  2  1
+```
+
+
+## Working with vectors
+
+Manipulating, summarising and sorting data using R is an important skill to master but one which many people find a little confusing at first. We’ll go through a few simple examples here using vectors to illustrate some important concepts but will build on this in much more detail later on.
+
+### Extracting (or indexing, or subscripting) elements
+
+In order to select one or more elements from a vector, we use square bracket `[ ]` notation. We can extract elements by their position or by satisfying some logical operation.
+
+1. Positional index.
+
+2. Logical index.
+
+
