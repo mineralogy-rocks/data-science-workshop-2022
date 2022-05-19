@@ -1,10 +1,12 @@
 ---
 title: "Introduction to data analysis in R. Day 1."
-output: 
+output:
   html_document:
-    toc: true
-    number_sections: true
+    toc: yes
+    number_sections: yes
     theme: united
+  pdf_document:
+    toc: yes
 date: '2022-05-26'
 ---
 
@@ -59,6 +61,8 @@ We'll need to install two things: *R base* and *IDE* (Integrated Development Env
 
 
 ## RStudio
+
+<!-- The last thing is recommended to do is select `Tools -> Project Options...` from the menu. Click on the ‘General’ tab on the left hand side and then change the values for ‘Restore .RData into workspace at startup’ and ‘Save workspace to .RData on exit’ from ‘Default’ to ‘No’. This ensures that every time you open your project you start with a clean R session. You don’t have to do this (many people don’t) but it is better to start with a completely clean workspace whenever we open our projects to avoid any potential conflicts with things we have done in previous sessions. The downside to this is that you will need to rerun your R code every time you open you project. -->
 
 ### Console
 
@@ -483,4 +487,325 @@ mean(my_vec, na.rm = TRUE)
 # [1] 12.5
 ```
 
+## Getting help
+
+The best place to start learning and understand what each function does is **reading the documentation**. Always check it!
+
+There are two principal ways to open the documentation of a specific function:
+
+1. `help("mean")`
+2. `?mean`
+
+However, if you don't remember the exact name of the function, but remember the keyword you can still search R's help system using these
+methods:
+
+1. `help.search("mean")`
+2. `??mean`
+
+Another useful function is `apropos()`. This function can be used to list all functions containing a specified character string. For example, to find all functions with mean in their name:
+
+```{r, eval=FALSE}
+apropos("mean")
+##  [1] ".colMeans"     ".rowMeans"     "colMeans"      "kmeans"       
+##  [5] "mean"          "mean_temp"     "mean.Date"     "mean.default" 
+##  [9] "mean.difftime" "mean.POSIXct"  "mean.POSIXlt"  "rowMeans"     
+## [13] "vec_mean"      "weighted.mean"
+```
+
+# Exercises
+
+```{r child = './exercises/exercise_1.Rmd'}
+```
+
+# Data in R
+
+There are few major data types in R:
+
+- **Numeric** data are numbers that contain a decimal. Actually they can also be whole numbers but we’ll gloss over that.
+
+- **Integers** are whole numbers (those numbers without a decimal point).
+
+- **Logical data** take on the value of either `TRUE` or `FALSE`. There’s also another special type of logical called NA to represent missing values.
+
+- **Character** data are used to represent string values. You can think of character strings as something like a word (or multiple words). A special type of character string is a factor, which is a string but with additional attributes (like levels or an order). We’ll cover factors later.
+
+R is (usually) able to automatically distinguish between different classes of data by their nature and the context in which they’re used although you should bear in mind that R can’t actually read your mind and you may have to explicitly tell R how you want to treat a data type. You can find out the type (or class) of any object using the class() function.
+
+```{r, eval=FALSE}
+num <- 2.2
+class(num)
+## [1] "numeric"
+
+char <- "hello"
+class(char)
+## [1] "character"
+
+logi <- TRUE
+class(logi)
+## [1] "logical"
+```
+Alternatively, you can ask if an object is a specific class using using a logical test. The `is.[classOfData]()` family of functions will return either a `TRUE` or a `FALSE`.
+
+```{r, eval=FALSE}
+is.numeric(num)
+## [1] TRUE
+
+is.character(num)
+## [1] FALSE
+
+is.character(char)
+## [1] TRUE
+
+is.logical(logi)
+## [1] TRUE
+```
+
+It can sometimes be useful to be able to change the class of a variable using the `as.[className]()` family of coercion functions, although you need to be careful when doing this as you might receive some unexpected results (see what happens below when we try to convert a character string to a numeric).
+
+```{r, eval=FALSE}
+# coerce numeric to character
+class(num)
+## [1] "numeric"
+num_char <-  as.character(num)
+num_char
+## [1] "2.2"
+class(num_char)
+## [1] "character"
+
+# coerce character to numeric!
+class(char)
+## [1] "character"
+char_num <- as.numeric(char)
+## Warning: NAs introduced by coercion
+```
+
+
+## Data structures
+
+Now that you know about data types, let's see where we can store these data.
+
+### Scalars and vectors
+
+Perhaps the simplest type of data structure is the **vector**. Vectors that have a single value (length 1) are called **scalars**. Vectors can contain numbers, characters, factors or logicals, but the key thing to remember is that all the elements inside a vector must be of the same class. In other words, vectors can contain either numbers, characters or logicals but not mixtures of these types of data. There is one important exception to this, you can include NA (remember this is special type of logical) to denote missing data in vectors with other data types.
+
+### Matrices and arrays
+
+Another useful data structure used in many disciplines is the **matrix**. A **matrix** is simply a vector that has additional attributes called dimensions. **Arrays** are just multidimensional matrices. **Again, matrices and arrays must contain elements all of the same data class**.
+
+A convenient way to create a matrix or an array is to use the `matrix()` and `array()` functions respectively. Below, we will create a matrix from a sequence 1 to 16 in four rows `(nrow = 4)` and fill the matrix row-wise `(byrow = TRUE)` rather than the default column-wise. When using the `array()` function we define the dimensions using the `dim = argument`, in our case 2 rows, 4 columns in 2 different matrices.
+
+``` {r, eval=FALSE}
+my_mat <- matrix(1:16, nrow = 4, byrow = TRUE)
+my_mat
+##      [,1] [,2] [,3] [,4]
+## [1,]    1    2    3    4
+## [2,]    5    6    7    8
+## [3,]    9   10   11   12
+## [4,]   13   14   15   16
+
+my_array <- array(1:16, dim = c(2, 4, 2))
+my_array
+## , , 1
+## 
+##      [,1] [,2] [,3] [,4]
+## [1,]    1    3    5    7
+## [2,]    2    4    6    8
+## 
+## , , 2
+## 
+##      [,1] [,2] [,3] [,4]
+## [1,]    9   11   13   15
+## [2,]   10   12   14   16
+```
+
+Sometimes it’s also useful to define row and column names for your matrix but this is not a requirement. To do this use the `rownames()` and `colnames()` functions.
+
+``` {r, eval=FALSE}
+rownames(my_mat) <- c("SiO2", "Na2O", "K2O", "MgO")
+colnames(my_mat) <- c(1, 2, 3, 4)
+my_mat
+##    a  b  c  d
+## SiO2  1  2  3  4
+## Na2O  5  6  7  8
+## K2O   9 10 11 12
+## MgO  13 14 15 16
+```
+
+Once you’ve created your matrices you can do useful stuff with them and as you’d expect, R has numerous built in functions to perform matrix operations. Some of the most common are:
+- the transposition function `t()`
+- the extraction of the diagonal elements of a matrix using the `diag()` function
+
+The usual matrix addition, multiplication etc can be performed. Note the use of the %*% operator to perform matrix multiplication.
+
+``` {r, eval=FALSE}
+mat.1 <- matrix(c(2, 0, 1, 1), nrow = 2)    # notice that the matrix has been filled 
+mat.1                                     # column-wise by default
+##      [,1] [,2]
+## [1,]    2    1
+## [2,]    0    1
+
+mat.2 <- matrix(c(1, 1, 0, 2), nrow = 2)
+mat.2
+##      [,1] [,2]
+## [1,]    1    0
+## [2,]    1    2
+
+mat.1 + mat.2           # matrix addition
+##      [,1] [,2]
+## [1,]    3    1
+## [2,]    1    3
+mat.1 * mat.2           # element by element products
+##      [,1] [,2]
+## [1,]    2    0
+## [2,]    0    2
+mat.1 %*% mat.2         # matrix multiplication
+##      [,1] [,2]
+## [1,]    3    2
+## [2,]    1    2
+```
+
+
+### Lists
+
+The next data structure we will quickly take a look at is a **list**. Whilst vectors and matrices are constrained to contain data of the same type, **lists are able to store mixtures of data types**. In fact we can even store other data structures such as vectors and arrays within a list or even have a list of a list. This makes for a very flexible data structure which is ideal for storing irregular or non-rectangular data.
+
+To create a list we can use the `list()` function. Note how each of the three list elements are of different classes (character, logical, and numeric) and are of different lengths.
+
+``` {r, eval=FALSE}
+list_1 <- list(c("basalt", "andesite", "dacite"),
+               c(TRUE, TRUE, FALSE, TRUE, FALSE, FALSE),
+               matrix(1:6, nrow = 3))
+list_1
+## [[1]]
+## [1] "basalt" "andesite" "dacite"
+## 
+## [[2]]
+## [1]  TRUE  TRUE FALSE  TRUE FALSE FALSE
+## 
+## [[3]]
+##      [,1] [,2]
+## [1,]    1    4
+## [2,]    2    5
+## [3,]    3    6
+```
+
+Elements of the list can also be named in two ways:
+
+1. during the construction of the list
+
+``` {r, eval=FALSE}
+list_2 <- list(rocks = c("basalt", "andesite", "dacite"), 
+               is.altered = c(TRUE, TRUE, FALSE, TRUE, FALSE, FALSE), 
+               measurements = matrix(1:6, nrow = 3))
+list_2
+## $rocks
+## [1] "basalt"  "andesite" "dacite"
+## 
+## $is.altered
+## [1]  TRUE  TRUE FALSE  TRUE FALSE FALSE
+## 
+## $measurements
+##      [,1] [,2]
+## [1,]    1    4
+## [2,]    2    5
+## [3,]    3    6
+```
+
+2. after the list has been created using the `names()` function
+
+``` {r, eval=FALSE}
+names(list_1) <- c("rocks", "is.altered", "measurements")
+list_1
+## $rocks
+## [1] "basalt"  "andesite" "dacite"
+## 
+## $is.altered
+## [1]  TRUE  TRUE FALSE  TRUE FALSE FALSE
+## 
+## $measurements
+##      [,1] [,2]
+## [1,]    1    4
+## [2,]    2    5
+## [3,]    3    6
+```
+
+
+### Data frames
+
+By far the most commonly used data structure to store data in is the **data frame**. A **data frame** is a powerful two-dimensional object made up of rows and columns which looks superficially very similar to a matrix. However, whilst matrices are restricted to containing data all of the same type, data frames can contain a mixture of different types of data. Typically, in a data frame each row corresponds to an individual observation and each column corresponds to a different measured or recorded variable. This setup may be familiar to those of you who use LibreOffice Calc or Microsoft Excel to manage and store your data. Perhaps a useful way to think about data frames is that they are essentially made up of a bunch of vectors (columns) with each vector containing its own data type but the data type can be different between vectors.
+
+As an example, the data frame below contains the results of ICP and XRF analyses of mafic dykes from the Argentine Islands (West Antarctica). The data frame has 68 variables (columns) and each row represents an individual measurement (40 rows). 
+
+The variables `analysis_type` and `rock_type` are factors (categorical variables). The `analysis_type` variable has 2 levels (XRF and ICP) and the `rock_type` level variable has 11 levels. The variables `specimen`, `location`, `country_rocks` and `notes` are characters. The other columns are numeric, however, as some of those contain '<' sign, they are coarced to characters by default.
+
+```{r}
+library(knitr)
+
+initial_data <- read.table('../data/raw_data/mafic_dykes.csv', header=TRUE, sep=',')
+kable(initial_data[1:10,], caption='A sample table of XRF and ICP analyses of mafic dykes.')
+```
+
+There are a couple of important things to bear in mind about data frames. These types of objects are known as **rectangular data (or tidy data) as each column must have the same number of observations**. Also, any missing data should be recorded as an NA just as we did with our vectors.
+
+We can construct a data frame from existing data objects such as vectors using the `data.frame()` function. As an example, let's 
+create three vectors `id`, `rock.type` and `is.altered`:
+
+```{r}
+ids = seq(1:5)
+rocks = c('microgabbro', 'metagabbro', 'gabbronorite', 'hornblende gabbro', 'volynite')
+altered = c(FALSE, TRUE, FALSE, FALSE, FALSE)
+
+data_ <- data.frame(id=ids, rock.type=rocks, is.altered=altered)
+data_
+```
+
+Useful functions when working with data frames:
+- `dim()` - returns the dimensions of data frame
+- `str()` - returns a summary of data frame, including factors, data types etc
+
+
+## Importing the data
+
+There is a bunch of in-built functions to import the tables in different formats, whether its
+`.xlsx`, `.xls`, `.csv` or a `.txt` extension:
+
+1. `read_table()` - a work hourse 🐎 of R.
+
+Some useful arguments include `dec =` and `na.strings =`. The `dec =` argument allows you to change the default character (.) used for a decimal point. This is useful if you’re in a country where decimal places are usually represented by a comma (i.e. `dec = ","`). The `na.strings =` argument allows you to import data where missing values are represented with a symbol other than `NA`. This can be quite common if you are importing data from other statistical software such as Minitab which represents missing values as a `*` (`na.strings = "*"`).
+
+2. `read_csv()` - import comma separated value (.csv) files and assumes that the data in columns are separated by a comma (it sets `sep = ","` by default). It also assumes that the first row of the data contains the variable names by default (it sets` header = TRUE` by default)
+
+3. `read_csv2()` - assumes data are separated by semicolons and that a comma is used instead of a decimal point (as in many European countries).
+
+4. `read.delim()` - is used to import tab delimited data and also assumes that the first row of the data contains the variable names by default.
+
+Additionally, we can import the data using the `readr` package, which is part of [tidyverse](https://www.tidyverse.org/) ecosystem. However, more on that later!
+
+## Wrangling data frames
+
+Let's do something useful with our data 🤗!
+
+First of all, let's remind ourselves what's the structure of `initial_data` data frame we imported earlier:
+
+```{r}
+initial_data <- read.table('../data/raw_data/mafic_dykes.csv', header=TRUE, sep=',')
+str(initial_data)
+```
+
+To access the data in any of the variables (columns) in our data frame we can use the `$` notation. For example, to access the `analysis_type` variable in our analyses data frame we can use `initial_data$analysis_type`. This tells R that the `analysis_type` variable is contained within the data frame `initial_data`.
+
+```{r}
+initial_data$analysis_type
+```
+
+The latter will return a vector, which we may assign to some variable. Additionally, we can already calculate
+some stats within our data 📊!
+
+```{r}
+summary(initial_data$SiO2)
+```
+
+```{r}
+mean(initial_data$MgO)
+```
 
