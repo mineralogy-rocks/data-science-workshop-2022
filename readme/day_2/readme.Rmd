@@ -1,0 +1,143 @@
+---
+title: "Introduction to tidyverse. Day 2."
+output:
+  html_document:
+    toc: yes
+    number_sections: yes
+    theme: united
+date: '2022-05-26'
+---
+
+```{r setup, include=FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction into tidyverse
+
+From the official website [tidyverse.org](https://www.tidyverse.org/): 
+
+*"The tidyverse is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures."*
+
+
+## Install the complete tidyverse
+
+```{r, eval = FALSE}
+install.packages("tidyverse")
+```
+
+You can see what is installed using the command:
+```{r, eval = FALSE}
+library(tidyverse)
+```
+
+You can update all packages using the function `tidyverse_update()`.
+
+## A tibble
+
+Remember how we created the data frames using `data.frame()` function? In tidyverse, the data frames are called **tibbles**. 
+They are much like the regular data frames, except **printing** and **subsetting**:
+
+Tibbles have a refined print method that shows only the first 10 rows, and all the columns that fit on screen. This makes it much easier to work with large data. In addition to its name, each column reports its type, a nice feature borrowed from `str()`:
+
+```{r}
+library(tibble)
+
+tibble(
+  id = seq(1:5),
+  rock_name = c("charnockite", "pyroxenite", "dunite", "volynite", "anorthosite"),
+  is.altered = c(TRUE, FALSE, FALSE, FALSE, FALSE)
+)
+```
+
+You can convert a data frame into tibble by using function `as_tibble()`
+
+```{r}
+library(tibble)
+
+df = data.frame(
+  id = seq(1:5),
+  rock_name = c("charnockite", "pyroxenite", "dunite", "volynite", "anorthosite"),
+  is.altered = c(TRUE, FALSE, FALSE, FALSE, FALSE)
+)
+
+as_tibble(df)
+```
+
+# Importing the data using `readr` package
+
+A tidyverse has a separate package for importing the data. Yesterday, we used base function to load the data frame - `read.table()`.
+However, the tidyverse' package `readr` is much more flexible! Check [readr](https://readr.tidyverse.org/) documentation and a cheatsheet to know more.
+
+```{r}
+library(readr)
+library(knitr)
+
+initial_data <- readr::read_csv('./data/raw_data/mafic_dykes.csv', col_names=TRUE)
+kable(initial_data[5:10,], caption='A sample table of XRF and ICP analyses of mafic dykes.')
+```
+
+Note, the data frame imported is already a tibble and all data types are "guessed" under the hood 🙂.
+
+# Tidy data
+
+The package called [tidyr](https://tidyr.tidyverse.org/) is used to create tidy data representation.
+
+The problem is that the same data may be represented in **multiple ways** using the table representation. 
+Here are some examples with same data but different representations:
+
+```{r}
+library(tidyr)
+
+tibble(
+  id = paste0(seq(1:5), '.sample'),
+  mineral = c('magnetite', 'ilmenite', 'ilmenite', 'Cr-spinel', 'hercynite'),
+  city = c('Banska Bystrica', 'Bratislava', 'Banska Bystrica', 'Banska Bystrica', 'Banska Bystrica'),
+  institution = c('SAV', 'Geological Institute', 'SAV', 'SAV', 'SAV'),
+  n_analyses = c(30, 119, 40, 20, 10)
+)
+
+tibble(
+  id = paste0(seq(1:5), '.sample'),
+  mineral = c('magnetite', 'ilmenite', 'ilmenite', 'Cr-spinel', 'hercynite'),
+  lab = c('SAV, Banska Bystrica', 'Geological Institute, Bratislava', 'SAV, Banska Bystrica', 'SAV, Banska Bystrica', 'SAV, Banska Bystrica'),
+  n_analyses = c(30, 119, 40, 20, 10)
+)
+
+tibble(
+  city = c('Bratislava', 'Banska Bystrica'),
+  institution = c('SAV', 'Geological Institute'),
+  minerals = list(list('magnetite', 'ilmenite', 'ilmenite', 'Cr-spinel'), list('hercynite')),
+  n_analyses = c(119, 100)
+)
+```
+
+**tidyr** functions fall into five main categories:
+
+1. **Pivotting** which converts between long and wide forms. tidyr 1.0.0 introduces pivot_longer() and pivot_wider(), replacing the older spread() and gather() functions. See vignette("pivot") for more details.
+
+2. **Rectangling**, which turns deeply nested lists (as from JSON) into tidy tibbles. See unnest_longer(), unnest_wider(), hoist(), and vignette("rectangle") for more details.
+
+3. **Nesting** converts grouped data to a form where each group becomes a single row containing a nested data frame, and unnesting does the opposite. See nest(), unnest(), and vignette("nest") for more details.
+
+4. **Splitting** and **combining** character columns. Use separate() and extract() to pull a single character column into multiple columns; use unite() to combine multiple columns into a single character column.
+
+5. Make **implicit missing values** explicit with complete(); make explicit missing values implicit with drop_na(); replace missing values with next/previous value with fill(), or a known value with replace_na().
+
+# Data visualization
+
+Let's finally dive into visualizing the data!
+
+We will be using [ggplot2](https://ggplot2.tidyverse.org/) package, which is a part of tidyverse ecosystem.
+
+It’s hard to succinctly describe how **ggplot2** works because it embodies a deep philosophy of visualisation. However, in most cases you start with `ggplot()`, supply a dataset and aesthetic mapping (with `aes()`). You then add on layers (like `geom_point()` or `geom_histogram()`), scales (like `scale_colour_brewer()`), faceting specifications (like `facet_wrap()`) and coordinate systems (like `coord_flip()`).
+
+Here's an example with built-in data frame called `mpg`.
+
+```{r}
+library(ggplot2)
+
+ggplot(mpg, aes(displ, hwy, colour = class)) + 
+  geom_point()
+```
+
+

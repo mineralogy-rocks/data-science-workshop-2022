@@ -5,8 +5,6 @@ output:
     toc: yes
     number_sections: yes
     theme: united
-  pdf_document:
-    toc: yes
 date: '2022-05-26'
 ---
 
@@ -151,7 +149,7 @@ By properly setting up your working directory, you can access files on your mach
 ```{r}
 library(knitr)
 
-initial_data <- read.table('../data/raw_data/mafic_dykes.csv', header=TRUE, sep=',')
+initial_data <- read.table('./data/raw_data/mafic_dykes.csv', header=TRUE, sep=',')
 kable(initial_data[5:10,], caption='A sample table of XRF and ICP analyses of mafic dykes.')
 ```
 
@@ -514,8 +512,31 @@ apropos("mean")
 
 # Exercises
 
-```{r child = './exercises/exercise_1.Rmd'}
-```
+## Task
+
+Use R to determine the area of a circle with a diameter of 20 cm and assign the result to a variable called `area_circle`. 
+
+**Google is your friend if you can’t remember the formula 🙂 Also, remember that R already knows about pi.**
+
+
+## Task
+
+Calculate the cube root of 14 x 0.51. You might need to think creatively for a solution, and remember that R follows the usual order of mathematical operators so you might need to use brackets in your code.
+
+
+## Task
+
+Let's get back to geological dimension 😊!
+
+Create a vector of dummy MgO analyses of your favorite rocks. Remember, that a vector is of 1 dimension and stores
+values of one data type only. You can use function `c()` to create new vector.
+
+Now, calculate some basic stats of your MgO:
+
+- min of MgO
+- max of MgO
+- mean of MgO
+- subset your vector by values above the mean
 
 # Data in R
 
@@ -622,7 +643,7 @@ Sometimes it’s also useful to define row and column names for your matrix but 
 
 ``` {r, eval=FALSE}
 rownames(my_mat) <- c("SiO2", "Na2O", "K2O", "MgO")
-colnames(my_mat) <- c(1, 2, 3, 4)
+colnames(my_mat) <- c("a", "b", "c", "d")
 my_mat
 ##    a  b  c  d
 ## SiO2  1  2  3  4
@@ -741,7 +762,7 @@ The variables `analysis_type` and `rock_type` are factors (categorical variables
 ```{r}
 library(knitr)
 
-initial_data <- read.table('../data/raw_data/mafic_dykes.csv', header=TRUE, sep=',')
+initial_data <- read.table('./data/raw_data/mafic_dykes.csv', header=TRUE, sep=',')
 kable(initial_data[1:10,], caption='A sample table of XRF and ICP analyses of mafic dykes.')
 ```
 
@@ -788,7 +809,7 @@ Let's do something useful with our data 🤗!
 First of all, let's remind ourselves what's the structure of `initial_data` data frame we imported earlier:
 
 ```{r}
-initial_data <- read.table('../data/raw_data/mafic_dykes.csv', header=TRUE, sep=',')
+initial_data <- read.table('./data/raw_data/mafic_dykes.csv', header=TRUE, sep=',')
 str(initial_data)
 ```
 
@@ -809,3 +830,270 @@ summary(initial_data$SiO2)
 mean(initial_data$MgO)
 ```
 
+### Indexes 
+
+As with vectors, we can also access data in data frames using the square bracket notation `[ ]`. 
+
+1. **Positional indexes**
+
+To use positional indexes we have to write the position of the rows and columns we want to extract inside the `[ ]`. For example, if for some reason we wanted to extract the first value (1st row) of the `rock_type` variable (5th column) we can do this:
+
+```{r, eval=FALSE}
+initial_data[1, 5]
+```
+
+which is the same as this:
+
+```{r, eval=FALSE}
+initial_data$rock_type[1]
+```
+
+We can also extract values from multiple rows or columns by specifying these indexes as vectors inside the `[ ]`. To extract the first 10 rows and the first 4 columns we simple supply a vector containing a sequence from 1 to 10 for the rows index `(1:10)` and a vector from 1 to 4 for the column index `(1:4)`:
+
+```{r, eval=FALSE}
+initial_data[1:10, 1:4]
+```
+
+Or for non sequential rows and columns we can supply vectors of positions using the `c()` function:
+
+```{r, eval=FALSE}
+initial_data[c(1, 5, 12), c(1, 3, 6, 8)]
+```
+
+If you want to select all rows, but a specific columns, you can do this:
+
+```{r, eval=FALSE}
+initial_data[, 1:4]
+```
+
+If you wont to omit specific rows or columns, prepend `-` to a vector:
+
+```{r, eval=FALSE}
+initial_data[1:10, -c(1:4)]
+```
+
+We can also name the variables directly when using the square bracket [ ] notation:
+
+```{r, eval=FALSE}
+initial_data[1:10, c('specimen', 'rock_type')]
+```
+
+2. **Logical indexes**
+
+Just like with vectors, we can subset data frames using logical operations:
+
+```{r, eval=FALSE}
+initial_data[initial_data$SiO2 > 50]
+```
+
+You can also pass exact values:
+
+```{r, eval=FALSE}
+initial_data[initial_data$rock_type == 'basalt', ]
+```
+... or use a negation:
+
+```{r, eval=FALSE}
+initial_data[initial_data$rock_type != 'basalt', ]
+```
+Additionally, you can concatenate multiple operators using `|` (OR) and `&` (AND) operators:
+```{r, eval=FALSE}
+initial_data[(initial_data$rock_type == 'basalt') | (initial_data$rock_type == 'diabase'), ]
+
+initial_data[(initial_data$rock_type == 'basalt') & (initial_data$analysis_type == 'ICP'), ]
+```
+
+### Ordering data frames
+
+There's a function `order()` that we can use to order the data frame by a variable:
+
+```{r, eval=FALSE}
+initial_data[order(initial_data$SiO2, decreasing = TRUE), ]
+```
+
+We can also order by multiple variables:
+```{r, eval=FALSE}
+initial_data[order(initial_data$SiO2, -initial_data$MgO), ]
+```
+
+If we wanted to order the data frame by any other categorical variable, we need to first change the order of our levels of that column factor in our data frame using the `factor()` function. Once we’ve done this we can then use the `order()` function as usual. 
+
+```{r, eval=FALSE}
+initial_data$analysis_type <- factor(initial_data$analysis_type, levels=c('ICP', 'XRF'))
+```
+
+...and then you can apply ordering to your data frames
+
+```{r, eval=FALSE}
+initial_data[order(initial_data$analysis_type),]
+```
+
+### Adding columns and rows
+
+To simply append additional rows to an existing data frame we can use the `rbind()` function and to append columns the `cbind()` function. Let’s create a couple of test data frames to see this in action using the `data.frame()` function.
+
+
+```{r, eval = FALSE}
+df1 <- data.frame(specimen = 1:3, location = c('Peterman', 'Barchan', 'Galindez'),
+                  rock_type = 'basalt')
+df2 <- data.frame(specimen = 1:3, location = 'Forge Isl',
+                   rock_type = 'andesite')
+
+rbind(df1, df2)
+```
+
+or concatenate columns:
+
+```{r, eval = FALSE}
+df1 <- data.frame(specimen = 1:3, location = c('Peterman', 'Barchan', 'Galindez'),
+                  rock_type = 'basalt')
+df2 <- data.frame(location = 'Forge Isl')
+
+cbind(df1, df2)
+```
+
+### Merging data frames
+
+We can merge 2 data frames together using the `merge()` function:
+
+```{r, eval = FALSE}
+df1 <- data.frame(specimen = 1:3, location = c('Peterman', 'Barchan', 'Galindez'),
+                  rock_type = 'basalt')
+df2 <- data.frame(specimen = 1:3, SiO2 = c(46, 47.5, 50.8),
+                  lab = 'ACME')
+
+merge(df1, df2)
+```
+
+By default, the merging is performed using the column which is present in both cases - `specimen` in the previous case.
+However, if the variable names that you want to base the merge on are different in each data frame (for example 'specimen' and 'Specimen') you can specify the names in the first data frame (known as `x`) and the second data frame (known as `y`) using the `by.x =` and `by.y =` arguments.
+
+```{r, eval = FALSE}
+df1 <- data.frame(specimen = 1:3, location = c('Peterman', 'Barchan', 'Galindez'),
+                  rock_type = 'basalt')
+df2 <- data.frame(Specimen = 1:3, SiO2 = c(46, 47.5, 50.8),
+                  lab = 'ACME')
+
+merge(df1, df2, by.x='specimen', by.y='Specimen')
+```
+**What will happen if you don't pass `by.x` and `by.y` arguments?**
+
+
+# Exercises
+
+## Task
+
+Create a vector, named `my_vec` with 10 elements in it using `c()` and `seq()` functions. 
+
+## Task
+
+Create a matrix, named `my_matrix` with 5 rows and 4 columns in it using `matrix()` functions. Fill it with any elements you wish.
+
+## Task
+
+Assign your rows these names: "a", "b", "c", "d", "e".
+
+## Task
+
+Create a list, named `minerals_list`, using `list()` function, that consists of 3 named vectors: 
+
+- `silicates` with two entries: 'beryl' and 'chrysoberyl'
+- `oxides` with two entries: 'choloalite' and 'pascoite'
+- `halides` with two entries: 'belloite' and 'bararite'
+
+## Task
+
+Create empty data frame, named `minerals_df`, using `data.frame()` function, that consists of 5 columns and 3 rows.
+The columns are as follows: 
+- id - *numeric*
+- rock_name - *string*
+- location - *string*
+- note - *string*
+
+Add few rows to it using `rbind()` function:
+
+1. 1, 'basaltoid', 'Zelezna Studnicka', 'A dyke of basaltic composition intrudes a large pegmatite body.'.  
+2. 1, 'andesitoid', 'Zelezna Studnicka', 'Andesite flow with a thickness of 3 m.'. 
+
+# Summarizing the data frames
+
+## `summary()`
+There's a `summary()` function that outputs some useful stats. You can apply it for the whole dataframe or to subsets, or specific columns:
+
+```{r, eval = FALSE}
+summary(initial_data$MgO)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 2.152   5.272   6.840   6.428   7.498  11.890 
+```
+
+## `table()`
+
+Another useful function is `table()` that can be used to build contingency tables of different combinations of factor levels. For example, to count the number of observations for each level of `analysis_type`:
+
+```{r, eval = FALSE}
+table(initial_data$analysis_type)
+# ICP XRF 
+# 15  25 
+```
+
+You can pass multiple columns to that function and see some insight!
+
+```{r, eval = FALSE}
+table(initial_data$analysis_type, initial_data$rock_type)
+#  andesite basalt diabase dioritic porphyrite lamprophyre megacrystic porphyrite metadiabase porphyritic diabase porphyritic
+#  ICP        0      5       3                   0           1                      0           0                   0 
+#  XRF        1     11       5                   1           1                      1           2                   1 
+```
+
+## `xtabs()`
+
+Another powerful function is `xtabs()` that uses a formula notation `~` to build contingency tables with the cross-classifying variables separated by a `+` symbol on the right hand side of the formula. `xtabs()` also has a useful `data =` argument so you don’t have to include the data frame name when specifying each variable.
+
+```{r, eval = FALSE}
+xtabs(~ analysis_type, data = initial_data)
+# ICP XRF 
+# 15  25 
+```
+
+## `tapply()`
+
+We can also **summarise** our data for each level of a factor variable. Let’s say we want to calculate the mean value of `SiO2` for each of our *ICP* and *XRF* levels of `analysis_type` column. To do this we will use the `mean()` function and apply this to the `SiO2` variable for each level of `analysis_type` using the `tapply()` function.
+
+```{r, eval = FALSE}
+tapply(initial_data$SiO2, initial_data$analysis_type, FUN=mean)
+```
+Additionally, we can pass multiple factors!
+
+```{r, eval = FALSE}
+tapply(initial_data$SiO2, list(initial_data$analysis_type, initial_data$rock_type), FUN=mean)
+```
+Moreover, you can pass `summary()` function as the argument too:
+
+```{r, eval = FALSE}
+tapply(initial_data$SiO2, initial_data$analysis_type, FUN=summary)
+```
+
+## `aggregate()`
+
+Another really useful function for summarising data is the `aggregate()` function. The `aggregate()` function works in a very similar way to `tapply()` but is a bit more flexible.
+
+For example, to calculate the mean of the variables `SiO2`, `TiO2`, and `K2O` for each level of `rock_type` we do:
+```{r, eval = FALSE}
+aggregate(list(SiO2 = initial_data$SiO2, TiO2 = initial_data$TiO2, K2O = initial_data$K2O), by = list(rock_type = initial_data$rock_type), FUN = mean)
+```
+
+# Exporting data
+
+Say you calculated some important variables, or filtered your data frame. Now, you want to save it. 
+
+```{r, eval=FALSE}
+export_data <- initial_data[initial_data$rock_type %in% c('basalt', 'metadiabase'), ]
+```
+
+There's a helper function `write.table()` or `write.csv()` that can do that easily! The first argument is the data frame you want to export (`export_data` in our example). We then give the `filename` (with file extension) and the file path in either single or double quotes using the `file =` argument. In this example we’re exporting the data frame to a file called `basalt_metadiabase.csv` in the `data/export/` directory. The `col.names = TRUE` argument indicates that the variable names should be written in the first row of the file and the `row.names = FALSE` argument stops R from including the row names in the first column of the file. Finally, the `sep = "\t"` argument indicates that a Tab should be used as the delimiter in the exported file.
+
+```{r, eval = FALSE}
+write.csv(export_data, file = 'data/export/basalt_metadiabase.csv', row.names = FALSE)
+```
+
+**That's all for today!**
