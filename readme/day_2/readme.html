@@ -389,7 +389,12 @@ summary {
 <li><a href="#a-tibble"><span class="toc-section-number">1.2</span> A tibble</a></li>
 </ul></li>
 <li><a href="#importing-the-data-using-readr-package"><span class="toc-section-number">2</span> Importing the data using <code>readr</code> package</a></li>
-<li><a href="#tidy-data"><span class="toc-section-number">3</span> Tidy data</a></li>
+<li><a href="#tidy-data"><span class="toc-section-number">3</span> Tidy data</a><ul>
+<li><a href="#pivotting"><span class="toc-section-number">3.1</span> <strong>Pivotting</strong></a></li>
+<li><a href="#rectangling"><span class="toc-section-number">3.2</span> <strong>Rectangling</strong></a></li>
+<li><a href="#nesting"><span class="toc-section-number">3.3</span> <strong>Nesting</strong></a></li>
+<li><a href="#splitting-and-combining-character-columns"><span class="toc-section-number">3.4</span> <strong>Splitting</strong> and <strong>combining</strong> character columns</a></li>
+</ul></li>
 <li><a href="#data-visualization"><span class="toc-section-number">4</span> Data visualization</a></li>
 </ul>
 </div>
@@ -1095,14 +1100,29 @@ tibble(
 ##   &lt;chr&gt;           &lt;chr&gt;                &lt;list&gt;          &lt;dbl&gt;
 ## 1 Bratislava      SAV                  &lt;list [4]&gt;        119
 ## 2 Banska Bystrica Geological Institute &lt;list [1]&gt;        100</code></pre>
-<p><strong>tidyr</strong> functions fall into five main categories:</p>
+<p>In order to make things clear, we’ll use next terminology:</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Pivotting</strong> which converts between long and wide forms. tidyr 1.0.0 introduces pivot_longer() and pivot_wider(), replacing the older spread() and gather() functions. See vignette(“pivot”) for more details.</p></li>
-<li><p><strong>Rectangling</strong>, which turns deeply nested lists (as from JSON) into tidy tibbles. See unnest_longer(), unnest_wider(), hoist(), and vignette(“rectangle”) for more details.</p></li>
-<li><p><strong>Nesting</strong> converts grouped data to a form where each group becomes a single row containing a nested data frame, and unnesting does the opposite. See nest(), unnest(), and vignette(“nest”) for more details.</p></li>
-<li><p><strong>Splitting</strong> and <strong>combining</strong> character columns. Use separate() and extract() to pull a single character column into multiple columns; use unite() to combine multiple columns into a single character column.</p></li>
-<li><p>Make <strong>implicit missing values</strong> explicit with complete(); make explicit missing values implicit with drop_na(); replace missing values with next/previous value with fill(), or a known value with replace_na().</p></li>
+<li><strong>A variable is a column.</strong></li>
+<li><strong>An observation is a row.</strong></li>
+<li><strong>A cell in the table is a value.</strong></li>
 </ol>
+<p><strong>tidyr</strong> functions fall into five main categories.</p>
+<div id="pivotting" class="section level2">
+<h2><span class="header-section-number">3.1</span> <strong>Pivotting</strong></h2>
+<p>converts between long and wide forms. tidyr 1.0.0 introduces <code>pivot_longer()</code> and <code>pivot_wider()</code>. See <code>vignette(&quot;pivot&quot;)</code> for more details.</p>
+</div>
+<div id="rectangling" class="section level2">
+<h2><span class="header-section-number">3.2</span> <strong>Rectangling</strong></h2>
+<p>turns deeply nested lists (as from JSON) into tidy tibbles. See <code>unnest_longer()</code>, <code>unnest_wider()</code>, <code>hoist()</code>, and <code>vignette(&quot;rectangle&quot;)</code> for more details.</p>
+</div>
+<div id="nesting" class="section level2">
+<h2><span class="header-section-number">3.3</span> <strong>Nesting</strong></h2>
+<p>converts grouped data to a form where each group becomes a single row containing a nested data frame, and unnesting does the opposite. See <code>nest()</code>, <code>unnest()</code>, and <code>vignette(&quot;nest&quot;)</code> for more details.</p>
+</div>
+<div id="splitting-and-combining-character-columns" class="section level2">
+<h2><span class="header-section-number">3.4</span> <strong>Splitting</strong> and <strong>combining</strong> character columns</h2>
+<p>Use <code>separate()</code> and <code>extract()</code> to pull a single character column into multiple columns; use <code>unite()</code> to combine multiple columns into a single character column.</p>
+</div>
 </div>
 <div id="data-visualization" class="section level1">
 <h1><span class="header-section-number">4</span> Data visualization</h1>

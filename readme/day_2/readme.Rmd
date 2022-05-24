@@ -111,17 +111,34 @@ tibble(
 )
 ```
 
-**tidyr** functions fall into five main categories:
+In order to make things clear, we'll use next terminology:
 
-1. **Pivotting** which converts between long and wide forms. tidyr 1.0.0 introduces pivot_longer() and pivot_wider(), replacing the older spread() and gather() functions. See vignette("pivot") for more details.
+1. **A variable is a column.**
+2. **An observation is a row.**
+3. **A cell in the table is a value.**
 
-2. **Rectangling**, which turns deeply nested lists (as from JSON) into tidy tibbles. See unnest_longer(), unnest_wider(), hoist(), and vignette("rectangle") for more details.
+**tidyr** functions fall into five main categories.
 
-3. **Nesting** converts grouped data to a form where each group becomes a single row containing a nested data frame, and unnesting does the opposite. See nest(), unnest(), and vignette("nest") for more details.
+## **Pivotting**
 
-4. **Splitting** and **combining** character columns. Use separate() and extract() to pull a single character column into multiple columns; use unite() to combine multiple columns into a single character column.
+converts between long and wide forms. tidyr 1.0.0 introduces `pivot_longer()` and `pivot_wider()`. See `vignette("pivot")` for more details.
 
-5. Make **implicit missing values** explicit with complete(); make explicit missing values implicit with drop_na(); replace missing values with next/previous value with fill(), or a known value with replace_na().
+
+
+## **Rectangling**
+
+turns deeply nested lists (as from JSON) into tidy tibbles. See `unnest_longer()`, `unnest_wider()`, `hoist()`, and `vignette("rectangle")` for more details.
+
+## **Nesting**
+
+converts grouped data to a form where each group becomes a single row containing a nested data frame, and unnesting does the opposite. See `nest()`, `unnest()`, and `vignette("nest")` for more details.
+
+## **Splitting** and **combining** character columns
+
+Use `separate()` and `extract()` to pull a single character column into multiple columns; use `unite()` to combine multiple columns into a single character column.
+
+
+
 
 # Data visualization
 
