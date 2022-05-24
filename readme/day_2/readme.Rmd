@@ -18,6 +18,10 @@ From the official website [tidyverse.org](https://www.tidyverse.org/):
 
 *"The tidyverse is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures."*
 
+The most useful thing when learning the tidyverse is looking into their cheat sheets that include all important information about
+the specific package. For example, [this is a cheat sheet for a dplyr package](https://github.com/rstudio/cheatsheets/blob/main/data-transformation.pdf).
+
+*Remember, you always have to load library if you want to use some functions from there.*
 
 ## Install the complete tidyverse
 
@@ -78,7 +82,7 @@ kable(initial_data[5:10,], caption='A sample table of XRF and ICP analyses of ma
 
 Note, the data frame imported is already a tibble and all data types are "guessed" under the hood 🙂.
 
-# Tidy data
+# Tidy data with `tidyr` 
 
 The package called [tidyr](https://tidyr.tidyverse.org/) is used to create tidy data representation.
 
@@ -117,25 +121,253 @@ In order to make things clear, we'll use next terminology:
 2. **An observation is a row.**
 3. **A cell in the table is a value.**
 
-**tidyr** functions fall into five main categories.
+**tidyr** functions fall into five main categories. We will not dive into those, because they are a bit complicated.
 
-## **Pivotting**
+## Pivotting
 
-converts between long and wide forms. tidyr 1.0.0 introduces `pivot_longer()` and `pivot_wider()`. See `vignette("pivot")` for more details.
+Converts between long and wide forms. tidyr 1.0.0 introduces `pivot_longer()` and `pivot_wider()`. See `vignette("pivot")` for more details.
 
+## Rectangling
 
+Turns deeply nested lists (as from JSON) into tidy tibbles. See `unnest_longer()`, `unnest_wider()`, `hoist()`, and `vignette("rectangle")` for more details.
 
-## **Rectangling**
+## Nesting
 
-turns deeply nested lists (as from JSON) into tidy tibbles. See `unnest_longer()`, `unnest_wider()`, `hoist()`, and `vignette("rectangle")` for more details.
+Converts grouped data to a form where each group becomes a single row containing a nested data frame, and unnesting does the opposite. See `nest()`, `unnest()`, and `vignette("nest")` for more details.
 
-## **Nesting**
-
-converts grouped data to a form where each group becomes a single row containing a nested data frame, and unnesting does the opposite. See `nest()`, `unnest()`, and `vignette("nest")` for more details.
-
-## **Splitting** and **combining** character columns
+## Splitting and combining character columns
 
 Use `separate()` and `extract()` to pull a single character column into multiple columns; use `unite()` to combine multiple columns into a single character column.
+
+As an example of what these functions may do, let's look into the following:
+
+```{r}
+library(readr)
+library(tidyr)
+library(knitr)
+library(dplyr)
+
+initial_data <-readxl::read_xls('./data/raw_data/Chrysoberyl analysis database.xls')
+kable(initial_data[1:5,], caption='A sample table of EPMA analyses of Be minerals.')
+```
+
+As you may see, this data is a bit **wide**.. We might want to convert it to a longer format, eg have the oxides as variables (columns)
+and analyses as observations (rows) - that is more logical in our case. 
+The latter could be done with regular function `t()` which transposes objects:
+```{r}
+initial_data_t <- t(initial_data)
+colnames(initial_data_t) <- initial_data_t[1,]
+initial_data_t <- as_tibble(cbind(Sample = names(initial_data)[-1], initial_data_t[-1,]))
+
+initial_data_t <- 
+  initial_data_t %>%
+  mutate_at(vars(-Sample, -Origin, -Reference), as.numeric)
+
+kable(initial_data_t[1:10,1:5], caption='A sample table of EPMA analyses of Be minerals.')
+```
+
+Now, looks a bit better and we are ready for some filtering and calculations!
+
+# `dplyr` basics
+
+[Dplyr](https://dplyr.tidyverse.org/) is a grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges.
+
+Dplyr provides an alternative syntax for chaining or combining multiple functions, or calling a single function:
+
+```{r}
+select(initial_data_t, SiO2)
+```
+which is the same as this
+```{r}
+initial_data_t %>%
+  select(SiO2)
+```
+
+**%>%** operator is called a **pipe** operator. Its syntax is very simple and it allows you to omit the `data` argument of tidyverse functions.
+
+There are **5 most useful functions** within this package.
+
+## Functions to work with observations (rows)
+
+### `filter()`
+It allows you to choose rows based on column values.
+
+Let's filter our dataframe by those rows satisfying the criteria 
+```{r}
+initial_data_t %>%
+  filter(Al2O3 > 50 & `BeO calc.` <= 19)
+```
+Note, the same could be written as:
+```{r, eval = FALSE}
+filter(initial_data_t, Al2O3 > 50 & `BeO calc.` <= 19)
+```
+
+To use filtering effectively, you have to know how to select the observations that you want using the comparison operators. R provides the standard suite: `>`, `>=`, `<`, `<=`, `!=` (not equal), and `==` (equal).
+
+Multiple arguments to `filter()` are combined with “and”: every expression must be true in order for a row to be included in the output. For other types of combinations, you’ll need to use Boolean operators yourself: `&` is “and”, `|` is “or”, and `!` is “not”. Additionally,
+there's a useful short-hand for selecting values satisfying multiple criteria using `x %in% y`. This will select every row where `x` is one of the values in `y`.
+
+```{r}
+initial_data_t %>% 
+  filter(Origin %in% c('Magmatic leucogranite', 'Contaminated ultrabasic rock'))
+```
+
+#### Exercise
+
+Try to do the following:
+
+1. Open the file *exercises/exercise_2.R* and execute the code available there.
+2. Now, try to filter the dataframe by those minerals, which have `BeO calc.` more or equal to 20wt% using the %>% operator and without it.
+3. Add another filter to the previous one: filter out those rows which doesn't have a `Reference`. Hint: a function `is.na()` can help you check if the value is `NA`.
+
+### `arrange()`
+It allows you to change the order of the rows. This functions works just the same as `filter()` except that instead of selecting rows,
+it changes their order. There's additional function `desc()` that could be used to arrange rows in descending order.
+
+Let's arrange our dataframe by BeO content in ascending order:
+```{r}
+initial_data_t %>% 
+  arrange(`BeO calc.`)
+```
+...and now in the descending:
+```{r}
+initial_data_t %>% 
+  arrange(desc(`BeO calc.`))
+```
+
+We are also able to apply sorting using multiple columns:
+```{r}
+initial_data_t %>% 
+  arrange(desc(`BeO calc.`), desc(TiO2), desc(Cr2O3))
+```
+
+
+### `slice()`
+It allows you to choose rows based on location. It's kind of a helper function to choose some rows to work with.
+```{r}
+initial_data_t %>% 
+  slice(5:10)
+```
+
+Additionally, you can use `slice_head(n=X)` and `slice_tail(n=X)` to select first X or last X rows respectively.
+
+```{r}
+initial_data_t %>% 
+  slice_head(n=2)
+```
+
+`slice_sample(n=X)` will return a random X rows from a dataframe.
+`slice_min()` and `slice_max()` select rows with highest or lowest values of a variable.
+
+```{r}
+initial_data_t %>% 
+  slice_max(TiO2)
+```
+
+## Functions to work with variables (columns)
+
+### `select()`
+It allows you to choose rows based on column values.
+
+More often than not, we want to work with only a small number of variables (columns). `select()` allows us to choose columns of 
+interest!
+
+We can choose one or multiple columns..
+```{r}
+initial_data_t %>% 
+  select(Sample, TiO2, Cr2O3)
+```
+
+...a range of columns by using `:` operator:
+```{r}
+initial_data_t %>% 
+  select(Sample, SiO2:Cr2O3)
+```
+...we can choose which columns NOT to include:
+```{r}
+initial_data_t %>% 
+  select(Sample, !TiO2:Cr2O3)
+```
+
+But what is really helpful is that there's a bunch of helper functions to use with a `select()` function! Here are few of those:
+
+- `starts_with()`
+- `ends_with()`
+- `matches()`
+- `contains()`
+
+the names of these functions already answer the question what each does, but here are few examples.
+Let's select all columns that starts with the character 'Si' or character 'Ti':
+```{r}
+initial_data_t %>% 
+  select(starts_with(c('Si', 'Ti')))
+```
+...now, let's select the cations from our dataset:
+```{r}
+initial_data_t %>% 
+  select(!contains('O'))
+```
+
+### `rename()`
+It allows you rename columns.
+
+Often, we might need to rename our variables to a more appropriate name. Here we can use the `rename()` function!
+
+```{r}
+initial_data_t %>% 
+  rename(silica = SiO2, alumina = Al2O3)
+```
+
+The latter returns the whole data frame with renamed columns.
+
+### `mutate()`
+It allows you to create columns.
+
+This is a very handy method for calculating new columns.
+
+```{r}
+initial_data_t %>% 
+  mutate(ti_to_be = TiO2/`BeO calc.`) %>%
+  select(Sample, TiO2, `BeO calc.`, ti_to_be)
+```
+...we can calculate multiple columns at once:
+```{r}
+initial_data_t %>% 
+  mutate(ti_to_be = TiO2/`BeO calc.`,
+         cr_to_ti = Cr2O3/TiO2) %>%
+  select(Sample, TiO2, Cr2O3, `BeO calc.`, ti_to_be, cr_to_ti)
+```
+
+## Functions to work with groups of observations (rows)
+
+### `summarise()`
+It allows you to collapse a group into a single row using a specific function as an argument.
+
+For, example, we can calculate few stats for the whole data frame:
+```{r}
+initial_data_t %>% 
+  summarise(silica_min = min(SiO2, na.rm=TRUE), min_alumina = min(Al2O3, na.rm=TRUE))
+```
+
+However, that's not very useful. Consider a task when we might want to calculate some stats based on the factors (or groups). For example,
+in our case we want to see what is the mean value of FeO, Cr2O3, TiO2 and BeO for **each origin type**. There's where a `group_by()` comes in handy!
+
+### `group_by()`
+
+`group_by()` takes an existing tbl and converts it into a grouped tbl where operations are performed "by group". Let's see an example.
+
+What happens if we do this?
+```{r}
+initial_data_t %>% 
+  summarise(be_o_mean = mean(`BeO calc.`))
+```
+...right. A mean value for all rows. But we want a mean BeO for each origin group! Let's do this:
+
+```{r}
+initial_data_t %>% 
+  group_by(Origin) %>%
+  summarise(be_o_mean = mean(`BeO calc.`))
+```
 
 
 

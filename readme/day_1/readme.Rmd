@@ -1090,10 +1090,10 @@ Say you calculated some important variables, or filtered your data frame. Now, y
 export_data <- initial_data[initial_data$rock_type %in% c('basalt', 'metadiabase'), ]
 ```
 
-There's a helper function `write.table()` or `write.csv()` that can do that easily! The first argument is the data frame you want to export (`export_data` in our example). We then give the `filename` (with file extension) and the file path in either single or double quotes using the `file =` argument. In this example we’re exporting the data frame to a file called `basalt_metadiabase.csv` in the `data/export/` directory. The `col.names = TRUE` argument indicates that the variable names should be written in the first row of the file and the `row.names = FALSE` argument stops R from including the row names in the first column of the file. Finally, the `sep = "\t"` argument indicates that a Tab should be used as the delimiter in the exported file.
+There's a helper function `write.table()` or `write.csv()` that can do that easily! The first argument is the data frame you want to export (`export_data` in our example). We then give the `filename` (with file extension) and the file path in either single or double quotes using the `file =` argument. In this example we’re exporting the data frame to a file called `basalt_metadiabase.csv` in the `data/processed_data/` directory. The `col.names = TRUE` argument indicates that the variable names should be written in the first row of the file and the `row.names = FALSE` argument stops R from including the row names in the first column of the file. Finally, the `sep = "\t"` argument indicates that a Tab should be used as the delimiter in the exported file.
 
 ```{r, eval = FALSE}
-write.csv(export_data, file = 'data/export/basalt_metadiabase.csv', row.names = FALSE)
+write.csv(export_data, file = 'data/processed_data/basalt_metadiabase.csv', row.names = FALSE)
 ```
 
 **That's all for today!**
