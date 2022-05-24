@@ -161,7 +161,8 @@ initial_data_t <- as_tibble(cbind(Sample = names(initial_data)[-1], initial_data
 
 initial_data_t <- 
   initial_data_t %>%
-  mutate_at(vars(-Sample, -Origin, -Reference), as.numeric)
+  mutate_at(vars(-Sample, -Origin, -Reference), as.numeric) %>%
+  mutate_at(vars(-Sample, -Origin, -Reference), .funs=function(x){ replace(x, x<=0, NA) })
 
 kable(initial_data_t[1:10,1:5], caption='A sample table of EPMA analyses of Be minerals.')
 ```
@@ -359,20 +360,39 @@ in our case we want to see what is the mean value of FeO, Cr2O3, TiO2 and BeO fo
 What happens if we do this?
 ```{r}
 initial_data_t %>% 
-  summarise(be_o_mean = mean(`BeO calc.`))
+  summarise(`BeO mean` = mean(`BeO calc.`))
 ```
 ...right. A mean value for all rows. But we want a mean BeO for each origin group! Let's do this:
 
 ```{r}
 initial_data_t %>% 
   group_by(Origin) %>%
-  summarise(be_o_mean = mean(`BeO calc.`))
+  summarise(`BeO mean` = mean(`BeO calc.`))
+```
+We may calculate as many variables per group as we wish:
+```{r}
+initial_data_t %>% 
+  group_by(Origin) %>%
+  summarise(`BeO mean` = mean(`BeO calc.`, na.rm=TRUE), 
+            `FeO mean` = mean(FeO, na.rm=TRUE), 
+            `Cr2O3 mean` = mean(Cr2O3, na.rm=TRUE), 
+            `TiO2 mean` = mean(TiO2, na.rm=TRUE)
+            )
 ```
 
+As well as grouping by existing variables, like in the previous example, you can **group by any function of existing variables**. This is equivalent to performing a `mutate()` before the `group_by()`:
+```{r}
+initial_data_t %>% 
+    mutate(Ti_group = if_else(TiO2 > 1, 'high', 'low')) %>%
+    group_by(Ti_group) %>%
+    summarise(`BeO mean` = mean(`BeO calc.`, na.rm=TRUE), 
+              `FeO mean` = mean(FeO, na.rm=TRUE), 
+              `Cr2O3 mean` = mean(Cr2O3, na.rm=TRUE), 
+              `TiO2 mean` = mean(TiO2, na.rm=TRUE)
+    )
+```
 
-
-
-# Data visualization
+# Data visualization with `ggplot`
 
 Let's finally dive into visualizing the data!
 
@@ -380,13 +400,53 @@ We will be using [ggplot2](https://ggplot2.tidyverse.org/) package, which is a p
 
 It’s hard to succinctly describe how **ggplot2** works because it embodies a deep philosophy of visualisation. However, in most cases you start with `ggplot()`, supply a dataset and aesthetic mapping (with `aes()`). You then add on layers (like `geom_point()` or `geom_histogram()`), scales (like `scale_colour_brewer()`), faceting specifications (like `facet_wrap()`) and coordinate systems (like `coord_flip()`).
 
-Here's an example with built-in data frame called `mpg`.
+See [the examples of ggplot2 visualizations](https://r-graph-gallery.com/) to know more.
+
+Here's a simple example with the previous dataset.
 
 ```{r}
 library(ggplot2)
 
-ggplot(mpg, aes(displ, hwy, colour = class)) + 
-  geom_point()
+ggplot(data = initial_data_t) +
+  geom_point(mapping = aes(x = `BeO calc.`, y = TiO2))
 ```
 
+Accordingly, a reusable template for making graphs with `ggplot2` would be:
+```{r, eval=FALSE}
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+```
+where 
+
+- `DATA` is a tibble or a data frame, 
+- `GEOM_FUNCTION` - how to visualize the data,
+- `MAPPINGS` - which variables to use and how
+
+What happens when we run `ggplot(data = initial_data_t)`? 
+
+Open the [cheat sheet](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf) to start exploring this library.
+
+## Scatter plot
+
+Let's start with a simple scatter binary plot. Try to plot *TiO2* on X axis with *Cr2O3* on Y axis for our dataframe!
+```{r}
+ggplot(data = initial_data_t) +
+  geom_point(mapping = aes(x = TiO2, y = Cr2O3))
+```
+
+Let's change the color of the points and adjust their size:
+
+```{r}
+ggplot(data = initial_data_t) +
+  geom_point(mapping = aes(x = TiO2, y = Cr2O3), color='blue', size=2)
+```
+
+Let's change the stroke of points, shape and a fill color:
+
+```{r}
+ggplot(data = initial_data_t) +
+  geom_point(mapping = aes(x = TiO2, y = Cr2O3), shape=21, color='blue', fill='white', size=2, stroke=1)
+```
+
+You can find the available options for R shapes [here](http://sape.inf.usi.ch/quick-reference/ggplot2/shape).
 
