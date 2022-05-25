@@ -392,6 +392,35 @@ initial_data_t %>%
     )
 ```
 
+# Exercises
+
+Open a script `exercises/exercise_2.R`. You will use it to do the tasks!
+
+## Task
+
+Filter out the observations (rows), where Cr2O3 was not measured. Hint: you can use a helper function `is.na()` to test whether an object is NA. Assign this to a new variable called `filtered_`.
+
+## Task
+
+Filter the `filtered_` by those samples where TiO2 > 1wt%.
+
+## Task
+
+Now, arrange the `filtered_` data frame by `BeO calc.` in the descending order.
+
+## Task
+
+We need only few columns from `filtered_` to work with. Use a function `select()` to select the next variables:
+
+- Sample
+- Origin
+- All columns that contain Oxygen ('O') in its formula.
+
+## Task
+
+Calculate the median of BeO, Al2O3, TiO2 and Cr2O3 by each Origin group of the `initial_data_t` data frame. Hint: use `group_by()` and `summarise()` functions.
+
+
 # Data visualization with `ggplot`
 
 Let's finally dive into visualizing the data!
@@ -411,6 +440,13 @@ ggplot(data = initial_data_t) +
   geom_point(mapping = aes(x = `BeO calc.`, y = TiO2))
 ```
 
+The structure of code is as follows:
+
+ - `ggplot()` - creates a new ggplot.
+ - `aes()` - constructs [aesthetic mappings](https://ggplot2.tidyverse.org/reference/aes.html). Aesthetic mappings describe how variables in the data are mapped to visual properties (aesthetics) of geoms.
+ - `+` - adds components to a plot.
+
+
 Accordingly, a reusable template for making graphs with `ggplot2` would be:
 ```{r, eval=FALSE}
 ggplot(data = <DATA>) + 
@@ -428,25 +464,219 @@ Open the [cheat sheet](https://github.com/rstudio/cheatsheets/blob/main/data-vis
 
 ## Scatter plot
 
-Let's start with a simple scatter binary plot. Try to plot *TiO2* on X axis with *Cr2O3* on Y axis for our dataframe!
+### A basic one
+Let's start with a simple scatter binary plot. Try to plot *TiO2* on X axis with *Al2O3* on Y axis for our dataframe!
 ```{r}
 ggplot(data = initial_data_t) +
-  geom_point(mapping = aes(x = TiO2, y = Cr2O3))
+  geom_point(mapping = aes(x = TiO2, y = Al2O3))
 ```
 
+### With custom color
 Let's change the color of the points and adjust their size:
 
 ```{r}
 ggplot(data = initial_data_t) +
-  geom_point(mapping = aes(x = TiO2, y = Cr2O3), color='blue', size=2)
+  geom_point(mapping = aes(x = TiO2, y = Al2O3), color='blue', size=2)
 ```
 
+### With custom stroke, shape and fill
 Let's change the stroke of points, shape and a fill color:
 
 ```{r}
 ggplot(data = initial_data_t) +
-  geom_point(mapping = aes(x = TiO2, y = Cr2O3), shape=21, color='blue', fill='white', size=2, stroke=1)
+  geom_point(mapping = aes(x = TiO2, y = Al2O3), shape=21, color='blue', fill='white', size=2, stroke=1)
 ```
 
 You can find the available options for R shapes [here](http://sape.inf.usi.ch/quick-reference/ggplot2/shape).
+
+### With calculated colors
+Let's assign colors depending on the Origin of our samples (`Origin` column). We can control this by passing `color` argument to `aes()` function.
+```{r}
+ggplot(data = initial_data_t) +
+  geom_point(mapping = aes(x = TiO2, y = Al2O3, color=Origin), size=2)
+```
+
+#### Using `scale_color_brewer()`
+
+Hmmm... you see that by default `ggplot2` assigns very similar colors to two groups - *Contaminated syenite pegmatite* and 
+*Contaminated ultrabasic rock*. Luckily, `ggplot2` provides us with few functions to change the colors palette according to a
+[discrete](https://ggplot2.tidyverse.org/reference/scale_brewer.html) or a [continuous](https://ggplot2.tidyverse.org/reference/scale_colour_continuous.html) scale.
+
+We will append a function `scale_color_brewer()` to our `ggplot2` object and see what happens!
+```{r}
+ggplot(data = initial_data_t) +
+  geom_point(mapping = aes(x = TiO2, y = Al2O3, color=Origin), size=2) +
+  scale_color_brewer(palette = "Accent")
+```
+
+Try to pass `scale_color_brewer()` without any argument. What happens?
+Now, try to use another palette. You can choose the palette of your preferences from [here](https://ggplot2.tidyverse.org/reference/scale_brewer.html#palettes).
+
+
+### Create subplots, using `facet_wrap()`
+
+One way to add additional variables is with aesthetics. Another way, particularly useful for **categorical variables**, is to split your plot into **facets** - *subplots that each display one subset of the data*.
+
+To facet your plot by a single variable, use `facet_wrap()`. The first argument of `facet_wrap()` should be a formula, which you create with `~` followed by a variable name (here “formula” is the name of a data structure in R, not a synonym for “equation”). The variable that you pass to `facet_wrap()` should be discrete.
+
+So, let's create a separate plot for each origin, using the facets!
+```{r}
+ggplot(data = initial_data_t) +
+  geom_point(mapping = aes(x = TiO2, y = `BeO calc.`)) + 
+  facet_wrap(~Origin)
+```
+
+You can even use a logical expression to create subplots. Consider an idea to create two subplots:
+
+- BeO with TiO2 where BeO >= 18wt%
+- BeO with TiO2 where BeO <= 18wt%
+
+Here is how we can achieve that:
+```{r}
+ggplot(data = initial_data_t) +
+  geom_point(mapping = aes(x = TiO2, y = `BeO calc.`)) + 
+  facet_wrap(~ `BeO calc.` >= 18)
+```
+
+## Box plot
+
+Often, we might want to see the spread of some data based on the group or a category. The useful visual representation of it can be a [box plot](https://r-graph-gallery.com/boxplot.html)!
+
+### A basic plot
+```{r}
+ggplot(data = initial_data_t) +
+  geom_boxplot(mapping = aes(x = Origin, y = `BeO calc.`, fill=Origin))
+```
+
+### Improve the labels
+Since we are showing the legend, perhaps we might want to remove the X axis ticks labels, as they are too long and overlap.
+We can control that by passing a function `scale_x_discrete()`.
+Additionally, lets give some pretty labels to X and Y axis using the `xlab()` and `ylab()` functions.
+
+```{r}
+ggplot(data = initial_data_t) +
+  geom_boxplot(mapping = aes(x = Origin, y = `BeO calc.`, fill=Origin)) + 
+  scale_x_discrete(labels=NULL) +
+  xlab(label="Host rock origins") +
+  ylab(label='BeO (wt%)')
+```
+
+Looks better now!
+
+### Create sub boxplots, using `facet_wrap()`
+
+Just like we did previously with scatter plots, same logics is present when working with other plots.
+Lets see what is the spread of TiO2 based on two groups:
+
+- TiO2 where BeO >= 18wt%
+- TiO2 where BeO <= 18wt%
+
+However, now we will create a separate columns in our table, called `BeO_group` with two values in it:
+
+- 'BeO >= 18 wt%', if BeO >= 18wt%
+- 'BeO <= 18 wt%', if BeO <= 18wt%
+
+We will use a `mutate()` method to do this.
+
+```{r}
+initial_data_t_ = initial_data_t %>%
+  mutate(BeO_group = ifelse(`BeO calc.` >= 16, 'BeO >= 18 wt%', 'BeO <= 18 wt%'))
+
+ggplot(data = initial_data_t_) +
+  geom_boxplot(mapping = aes(x = Origin, y = TiO2, fill=Origin)) + 
+  facet_wrap(~BeO_group) +
+  scale_x_discrete(labels=NULL) +
+  xlab(label="Host rock origins") +
+  ylab(label='TiO2 (wt%)')
+```
+
+*Note: we have created a new data frame `initial_data_t_`. Typically, programmers append `_` to variable names to indicate
+that these are temporary or internal ones.*
+
+
+Now, lets create one plot, where *categories are organized in groups and subgroups*. Lets calculate another variable, called `Al2O3_group` with two values in it:
+
+- 'Al2O3 >= 78 wt%', if Al2O3 >= 78 wt%
+- 'Al2O3 <= 78 wt%', if Al2O3 <= 78 wt%
+
+Now, lets plot `BeO` on Y axis, `Origin` on X axis and fill the box plots according to `Al2O3_group` variable.
+```{r}
+initial_data_t_ = initial_data_t %>%
+  mutate(Al2O3_group = ifelse(Al2O3 >= 78, 'Al2O3 >= 78 wt%', 'Al2O3 <= 78 wt%'))
+
+ggplot(data = initial_data_t_) +
+  geom_boxplot(mapping = aes(x = Origin, y = `BeO calc.`, fill=Al2O3_group)) +
+  scale_x_discrete(labels=NULL) +
+  xlab(label="Host rock origins") +
+  ylab(label='BeO (wt%)')
+```
+
+## Histogram
+
+It is relatively straightforward to build a histogram with `ggplot2` thanks to the `geom_histogram()` function. Only one numeric variable is needed in the input. Note that a warning message is triggered with this code: we need to take care of the bin width as explained in the next section.
+
+### A basic one
+
+```{r}
+ggplot(data = initial_data_t) +
+  geom_histogram(mapping = aes(x = Al2O3))
+```
+
+### The `binwidth` parameter
+
+A histogram takes as input a numeric variable and cuts it into several bins. Playing with the bin size is a very important step, since its value can have a big impact on the histogram appearance and thus on the message you’re trying to convey. 
+
+```{r}
+ggplot(data = initial_data_t) +
+  geom_histogram(mapping = aes(x = Al2O3), binwidth = 0.5, fill='green', color='black')
+```
+
+What happens when you pass >1 as a `binwidth`?
+
+### Multi histogram
+
+Lets plot two histograms on same plot - BeO with Al2O3.
+
+```{r}
+ggplot(data = initial_data_t) +
+  geom_histogram(mapping = aes(x = `BeO calc.`), binwidth = 0.5, fill='blueviolet', color='black') +
+  geom_histogram(mapping = aes(x = Al2O3), binwidth = 0.5, fill='green', color='black')
+```
+
+As you see, the X axis label is a bit misleading.. Lets fix it using `xlab()` method.
+```{r}
+ggplot(data = initial_data_t) +
+  geom_histogram(mapping = aes(x = `BeO calc.`), binwidth = 0.5, fill='blueviolet', color='black') +
+  geom_histogram(mapping = aes(x = Al2O3), binwidth = 0.5, fill='green', color='black') +
+  xlab(label='value (wt%)')
+```
+
+# Exercises
+
+## Task
+
+Build a binary plot with BeO on X axis and Cr2O3 on the Y axis. Do you see any patterns? Why? 
+
+## Task
+
+Now, change the color of each observation according to a sample country rock origins. In which rocks the trend is clearly visible? So why we observe that?
+
+## Task
+
+Change the color palette using the function `scale_color_brewer()`. Choose a palette you like from [here](https://ggplot2.tidyverse.org/reference/scale_brewer.html#palettes).
+
+## Task
+
+Now, change the label of X axis to `BeO (wt%)` and Y axis to `Cr2O3 (wt%)` using the functions `ylab()` and `xlab()`.
+
+## Task
+
+Build a density plot. Use `ggplot2` [documentation](https://ggplot2.tidyverse.org/reference/geom_density.html) for doing this. Additionally, you can use [these examples](https://r-graph-gallery.com/135-stacked-density-graph.html).
+
+You will use a new function `geom_density()`. Use the Origin as a group for color, and any variable you wish for calculating densities.
+
+
+# Congratulations 🙃
+
+You passed the course! Cheers 🍺
 
